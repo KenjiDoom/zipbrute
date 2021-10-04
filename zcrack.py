@@ -1,4 +1,4 @@
-import zipfile 
+from zipfile import ZipFile
 import argparse
 import os
 
@@ -18,12 +18,18 @@ def keywords(args=None):
 
 def main():
 	args = keywords()
-	if os.path.exists(args.wordlist):
-		if os.path.exists(args.zip):
-			print('Also working')
+	wordlist = args.wordlist
+	zip_file = args.zip
+	if os.path.exists(wordlist):
+		if os.path.exists(zip_file) == True:
+			print("[+] Cracking....")
+			wordlist = open(args.wordlist, 'r')
+			for password in wordlist:
+				password = password.strip()
+				with ZipFile(zip_file) as zipp:
+					zipp.extractall(pwd=bytes(password, 'utf-8'))
 	else:
-		print('Nada')
-
+		print('No passwords found...')
 
 if __name__ == '__main__':
 	main()
