@@ -1,7 +1,7 @@
 from zipfile import ZipFile
+import zipfile
 import argparse
 import os
-
 
 def keywords(args=None):
 	print("""
@@ -11,25 +11,27 @@ def keywords(args=None):
 /___\___|_|  \__,_|\___|_|\_\\
 """)
 	parser = argparse.ArgumentParser(description='Brutforcing Zip files')
-	parser.add_argument('wordlist', metavar='-w', type=str, help='Password list file, must be txt file.')
-	parser.add_argument('zip', metavar='-z', type=str, help='Zip file location')
+	parser.add_argument('-w', metavar='wordlist', type=str, help='Password list file, must be txt file.')
+	parser.add_argument('-z', metavar='zip', type=str, help='Zip file location')
 	return parser.parse_args(args)
 
 
-def main():
-	args = keywords()
-	wordlist = args.wordlist
-	zip_file = args.zip
-	if os.path.exists(wordlist):
-		if os.path.exists(zip_file) == True:
-			print("[+] Cracking....")
-			wordlist = open(args.wordlist, 'r')
-			for password in wordlist:
-				password = password.strip()
-				with ZipFile(zip_file) as zipp:
-					zipp.extractall(pwd=bytes(password, 'utf-8'))
+def main(args=keywords()):
+	if os.path.exists(args.w) and os.path.exists(args.z) == True:
+		zip_file = zipfile.ZipFile(args.z)
+		with open(args.w, 'rb') as password:
+			for password in password:
+				for word in password.split():
+					try:
+						zip_file.extractall(pwd=word)
+						zip_file.printdir()
+						print('[+] Password: ' + word.decode())
+						return True
+					except:
+						continue
 	else:
-		print('No passwords found...')
+		print('[-] Files do not exists')
+
 
 if __name__ == '__main__':
 	main()
